@@ -442,4 +442,114 @@ print(f"  - MAE: {mae:.4f}")
 print(f"  - RMSE: {rmse:.4f}")
 print(f"  - R2 Score: {r2:.4f}")
 
+# --- 2. Classification Model ---
+clf_model = RandomForestClassifier(n_estimators=100, random_state=RANDOM_SEED, n_jobs=-1)
+clf_model.fit(X_train_clf, y_train_clf)
+
+y_pred_clf = clf_model.predict(X_test_clf)
+y_prob_clf = clf_model.predict_proba(X_test_clf)[:, 1]
+
+accuracy = accuracy_score(y_test_clf, y_pred_clf)
+precision = precision_score(y_test_clf, y_pred_clf)
+recall = recall_score(y_test_clf, y_pred_clf)
+f1 = f1_score(y_test_clf, y_pred_clf)
+roc_auc = roc_auc_score(y_test_clf, y_prob_clf)
+conf_matrix = confusion_matrix(y_test_clf, y_pred_clf)
+
+print("\nClassification Model Metrics (Random Forest Classifier):")
+print(f"  - Accuracy: {accuracy:.4f}")
+print(f"  - Precision: {precision:.4f}")
+print(f"  - Recall: {recall:.4f}")
+print(f"  - F1-Score: {f1:.4f}")
+print(f"  - ROC-AUC: {roc_auc:.4f}")
+print(f"  - Confusion Matrix:\n{conf_matrix}")
+
+# Class Balance Report
+class_counts = df["Pass_Flag"].value_counts()
+print(f"\nClass Balance in Dataset (Pass=1, Fail=0):")
+print(f"  - Passed: {class_counts.get(1, 0)} ({class_counts.get(1, 0)/len(df)*100:.2f}%)")
+print(f"  - Failed: {class_counts.get(0, 0)} ({class_counts.get(0, 0)/len(df)*100:.2f}%)")
+
+# Calculate Feature Importances for original features
+reg_importances = reg_model.feature_importances_
+encoded_cols = X_encoded.columns
+original_importances = {}
+
+for col, imp in zip(encoded_cols, reg_importances):
+    # Check if this column is a dummy of a categorical feature
+    found = False
+    for cat in cat_features_for_model:
+        if col.startswith(cat + "_"):
+            original_importances[cat] = original_importances.get(cat, 0) + imp
+            found = True
+            break
+    if not found:
+        original_importances[col] = imp
+
+# Sort original feature importances
+sorted_importances = sorted(original_importances.items(), key=lambda x: x[1], reverse=True)
+print("\nFeature Importances (reaggregated back to original features):")
+for feat, imp in sorted_importances:
+    print(f"  - {feat}: {imp:.4f}")
+
+# Format the model_metrics.csv in the JSON format requested
+metrics_json = {
+    "dataset_rows": int(len(df)),
+    "dataset_columns": int(df.shape[1]),
+    "pass_threshold": int(PASS_THRESHOLD),
+    "regression_metrics": {
+        "model_name": "Random Forest Regressor (Advanced)",
+        "mae": f"{mae:.4f}",
+        "rmse": f"{rmse:.4f}",
+        "r2": f"{r2:.4f}"
+    },
+    "linear_regression_metrics": {
+        "model_name": "Full Linear Regression (Baseline)",
+        "mae": f"{mae_lr:.4f}",
+        "rmse": f"{rmse_lr:.4f}",
+        "r2": f"{r2_lr:.4f}"
+    },
+    "simplified_equation_metrics": {
+        "model_name": "Simplified Equation-Based Linear Regression",
+        "mae": f"{mae_simple:.4f}",
+        "rmse": f"{rmse_simple:.4f}",
+        "r2": f"{r2_simple:.4f}",
+        "formula": f"Exam_Score = {simple_intercept:.4f} + {simple_coefs[0]:.4f}*Hours_Studied + {simple_coefs[1]:.4f}*Attendance + {simple_coefs[2]:.4f}*Previous_Scores + {simple_coefs[3]:.4f}*Tutoring_Sessions + {simple_coefs[4]:.4f}*Physical_Activity"
+    },
+    "classification_metrics": {
+        "model_name": "Random Forest Classifier",
+        "accuracy": f"{accuracy:.4f}",
+        "precision": f"{precision:.4f}",
+        "recall": f"{recall:.4f}",
+        "f1_score": f"{f1:.4f}",
+        "roc_auc": f"{roc_auc:.4f}"
+    },
+    "top_factors": [
+        {"feature": "Attendance", "direction": "positive", "importance": "extremely high"},
+        {"feature": "Hours_Studied", "direction": "positive", "importance": "extremely high"},
+        {"feature": "Previous_Scores", "direction": "positive", "importance": "moderate"}
+    ]
+}
+
+with open("model_metrics.csv", "w", encoding="utf-8") as f:
+    json.dump(metrics_json, f, indent=2)
+print("\nSaved model_metrics.csv")
+
+# Save the trained models and meta information for Streamlit loading
+import pickle
+streamlit_models = {
+    "lr_stats_model": lr_stats_model,
+    "clf_model": clf_model,
+    "reg_model": reg_model,
+    "lr_simple_model": lr_simple,
+    "X_encoded_stats_columns": list(X_encoded_stats.columns),
+    "X_encoded_columns": list(X_encoded.columns),
+    "model_features": model_features,
+    "cat_features_for_model": cat_features_for_model,
+    "key_behavior_cols": key_behavior_cols,
+    "PASS_THRESHOLD": PASS_THRESHOLD
+}
+with open("student_performance_models.pkl", "wb") as f:
+    pickle.dump(streamlit_models, f)
+print("Saved trained models to student_performance_models.pkl")
 
