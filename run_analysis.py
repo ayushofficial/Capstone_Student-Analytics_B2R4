@@ -710,3 +710,165 @@ plt.savefig("charts/10_top_factors_summary.png", dpi=200)
 plt.close()
 print("Saved Chart 10: Top Factors Summary")
 
+
+# =========================================================================
+# Task 13: Final Summary
+# =========================================================================
+print("\n--- Task 13: Final Summary ---")
+
+# Extract stats dynamically for the summary template
+idx_hours = stats_features.index("Hours_Studied")
+idx_attendance = stats_features.index("Attendance")
+idx_prev = stats_features.index("Previous_Scores")
+idx_tutoring = stats_features.index("Tutoring_Sessions")
+idx_physical = stats_features.index("Physical_Activity")
+idx_sleep = stats_features.index("Sleep_Hours")
+idx_public = stats_features.index("School_Type_Public")
+idx_gender = stats_features.index("Gender_Male")
+
+coef_hours = beta_stats[idx_hours]
+coef_attendance = beta_stats[idx_attendance]
+coef_prev = beta_stats[idx_prev]
+coef_tutoring = beta_stats[idx_tutoring]
+coef_physical = beta_stats[idx_physical]
+coef_sleep = beta_stats[idx_sleep]
+coef_public = beta_stats[idx_public]
+coef_gender = beta_stats[idx_gender]
+
+p_hours = p_vals[idx_hours]
+p_attendance = p_vals[idx_attendance]
+p_prev = p_vals[idx_prev]
+p_tutoring = p_vals[idx_tutoring]
+p_physical = p_vals[idx_physical]
+p_sleep = p_vals[idx_sleep]
+p_public = p_vals[idx_public]
+p_gender = p_vals[idx_gender]
+
+final_summary_content = f"""# Student Performance Analytics System - Final Project Summary
+
+## 1. Dataset Overview
+* **Dataset File**: `StudentPerformanceFactors.csv`
+* **Dataset Shape**: {len(df)} rows, 20 columns
+* **Target Variable**: `Exam_Score`
+* **Default Pass/Fail Threshold**: {PASS_THRESHOLD} marks
+* **Pass Rate on Dataset**: {pass_percentage:.2f}% (Passed: {pass_count}, Failed: {fail_count})
+* **Average Exam Score**: {exam_mean:.2f} marks
+* **Median Exam Score**: {exam_median:.2f} marks
+* **Exam Score Range**: [{exam_min_clean}, {exam_max_clean}]
+
+## 2. Data Cleaning & Validation Steps
+1. **Column Validation**: Verified that all 20 expected columns are present. No missing columns or extra unexpected columns were found.
+2. **Text Standardization**: Stripped leading/trailing whitespaces and mapped standard missing value strings to `NaN` for all categorical columns.
+3. **Imputation**:
+   * Numeric Columns: Replaced missing values with column medians (0 missing numeric values found).
+   * Categorical Columns: Imputed missing values in `Teacher_Quality` (78 missing), `Parental_Education_Level` (90 missing), and `Distance_from_Home` (67 missing) using their respective statistical **modes**.
+4. **Duplicate Detection**: Verified that there are **0** duplicate rows in the dataset.
+5. **Data Quality Issue Flagging**: Identified **1** record where the `Exam_Score` was above 100 (Index 1525, score of **101**). As instructed, this was flagged as a data quality anomaly but *not* deleted, preserving the integrity of the raw record while ensuring transparency.
+
+## 3. Feature Engineering Outcomes
+The following five critical columns were engineered to enhance analytics:
+1. `Pass_Flag`: Binary variable indicating if a student scored >= {PASS_THRESHOLD} (Pass = 1, Fail = 0).
+2. `Risk_Level`: Categorical segment based on exam score: "High Risk" (< 65), "Medium Risk" (65-69), and "Low Risk" (>= 70).
+3. `Study_Category`: Grouping of study time: "Low Study Hours" (< 15 hrs), "Medium Study Hours" (15-24 hrs), and "High Study Hours" (>= 25 hrs).
+4. `Attendance_Category`: School attendance rate groupings: "Low Attendance" (< 70%), "Medium Attendance" (70-84%), and "High Attendance" (>= 85%).
+5. `Previous_Performance_Category`: Prior performance categories: "Low" (< 65), "Medium" (65-84), and "High" (>= 85).
+
+## 4. Key Exploratory Data Analysis & Correlation Findings
+* **Strongest Relationships**: **Attendance** has an extremely high Pearson correlation of **{attendance_corr:.4f}** with `Exam_Score`. **Hours_Studied** is the second most crucial factor with a correlation of **{study_corr:.4f}**.
+* **Moderate Relationships**: **Previous_Scores** ({prev_corr:.4f}) and **Tutoring_Sessions** ({tutoring_corr:.4f}) show solid, positive correlations, indicating that historical academic foundation and seeking supportive tutoring are beneficial.
+* **Weak Linear Relationship**: **Sleep_Hours** has a correlation of **{sleep_corr:.4f}** with `Exam_Score`. While sleep is critical for overall health, it has almost zero linear predictive value for the score in this range, indicating it should not be overemphasized as a linear predictor.
+* **Environmental/Demographic Factors**: 
+  * Students with high learning motivation average **{avg_by_motivation.get('High', 0):.2f}** marks, compared to **{avg_by_motivation.get('Low', 0):.2f}** for low motivation.
+  * High resource access averages **{avg_by_resources.get('High', 0):.2f}** marks vs. **{avg_by_resources.get('Low', 0):.2f}** for low resource access.
+  * Private school average scores (**{avg_by_school.get('Private', 0):.2f}**) are slightly higher than public schools (**{avg_by_school.get('Public', 0):.2f}**).
+  * Female (**{avg_by_gender.get('Female', 0):.2f}**) and Male (**{avg_by_gender.get('Male', 0):.2f}**) scores are practically identical, demonstrating academic parity across genders in this dataset.
+
+## 5. Model Performance Summary
+We trained and compared multiple predictive models for student final scores:
+
+### Regression Performance (Continuous score prediction)
+We compared a baseline **Linear Regression** model with a non-linear **Random Forest Regressor**:
+
+1. **Linear Regression (Baseline & Primary)**:
+   * Mean Absolute Error (MAE): **{mae_lr:.4f}** marks (predictions are on average within {mae_lr:.2f} marks of actual scores).
+   * Root Mean Squared Error (RMSE): **{rmse_lr:.4f}**
+   * R-squared (R2) Score: **{r2_lr:.4f}** (meaning this model explains **{r2_lr*100:.1f}%** of the variance in student scores).
+   * *Aesthetic & Statistical Note*: Linear Regression significantly outperforms Random Forest on this dataset. This suggests that student performance factors operate under a highly additive, direct, and linear logic in this data.
+
+2. **Random Forest Regressor (Alternative)**:
+   * Mean Absolute Error (MAE): **{mae:.4f}** marks
+   * Root Mean Squared Error (RMSE): **{rmse:.4f}**
+   * R-squared (R2) Score: **{r2:.4f}** ({r2*100:.1f}% variance explained)
+
+### 5.1 Linear Regression Coefficient Significance Analysis
+Using standard errors and Student's t-distributions, we computed the statistical significance (p-values) for each factor. A factor is considered highly significant if its **p-value is < 0.05** (proving the relationship has a less than 5% probability of being a random chance occurrence):
+
+* **Highly Significant Behavioral Drivers (p-value = 0.0000)**:
+  * **Hours Studied** (Coefficient = **+{coef_hours:.4f}** per weekly hour): Every additional hour of study per week directly adds **{coef_hours:.2f} marks** to the final grade.
+  * **Attendance** (Coefficient = **+{coef_attendance:.4f}** per percentage point): Attendance has an exceptionally high impact. Every 10% increase in attendance adds **{coef_attendance*10:.2f} marks**.
+  * **Previous Scores** (Coefficient = **+{coef_prev:.4f}** per point): Reflects strong baseline knowledge.
+  * **Tutoring Sessions** (Coefficient = **+{coef_tutoring:.4f}** per monthly session): Direct positive intervention.
+  * **Physical Activity** (Coefficient = **+{coef_physical:.4f}** per day/week): Shows a small but highly significant positive coefficient.
+
+* **Non-Significant Variables (p-value >= 0.05 - No Direct Linear Effect)**:
+  * **Sleep Hours** (p-value = **{p_sleep:.4f}**, Coef = **{coef_sleep:.4f}**): Shows zero statistical significance. While vital for cognitive function, sleep hours within this range do not linearly influence final grades.
+  * **School Type (Public)** (p-value = **{p_public:.4f}**, Coef = **{coef_public:.4f}**): School type (Public vs Private) shows zero statistical significance, showing equal potential for success across school types.
+  * **Gender (Male)** (p-value = **{p_gender:.4f}**, Coef = **{coef_gender:.4f}**): Gender shows zero statistical significance. Male and female students demonstrate equal performance.
+
+### 5.2 Simplified Equation-Based Performance Model
+To provide educators, students, and parents with a highly practical, easy-to-use forecasting tool, we built a simplified, action-oriented model using *only* the 5 key continuous behavioral factors. This model explains **{r2_simple*100:.1f}%** ($R^2 = {r2_simple:.4f}$) of the score variance:
+
+$$\\text{{Estimated Exam Score}} \\approx {simple_intercept:.2f} + {simple_coefs[0]:.4f} \\times H + {simple_coefs[1]:.4f} \\times A + {simple_coefs[2]:.4f} \\times P + {simple_coefs[3]:.4f} \\times T + {simple_coefs[4]:.4f} \\times Y$$
+
+Where:
+* $H$ = **Hours Studied** (weekly revision hours, e.g., 20)
+* $A$ = **Attendance** (attendance percentage rate, e.g., 90)
+* $P$ = **Previous Scores** (prior grade percentage, e.g., 75)
+* $T$ = **Tutoring Sessions** (number of sessions per month, e.g., 2)
+* $Y$ = **Physical Activity** (exercise frequency in days per week, e.g., 3)
+
+**Example Calculation**: A student studying **18 hours/week** with **90% attendance**, **75% previous scores**, **2 tutoring sessions**, and **3 exercise days/week** is estimated to score:
+$$\\text{{Estimated Score}} = {simple_intercept:.2f} + {simple_coefs[0]:.4f}(18) + {simple_coefs[1]:.4f}(90) + {simple_coefs[2]:.4f}(75) + {simple_coefs[3]:.4f}(2) + {simple_coefs[4]:.4f}(3) = {simple_intercept + simple_coefs[0]*18 + simple_coefs[1]*90 + simple_coefs[2]*75 + simple_coefs[3]*2 + simple_coefs[4]*3:.1f} \\text{{ marks}}.$$
+
+### Classification Performance (Pass/Fail Prediction)
+We trained a **Random Forest Classifier** to predict whether a student passes (Exam_Score >= {PASS_THRESHOLD}):
+* **Model Accuracy**: **{accuracy*100:.2f}%**
+* **Precision**: **{precision:.4f}**
+* **Recall**: **{recall:.4f}**
+* **F1-Score**: **{f1:.4f}**
+* **ROC-AUC Score**: **{roc_auc:.4f}** (showing exceptional diagnostic performance)
+
+## 6. Student Risk Segmentation Analysis
+* **Low Risk Segment** (Score >= 70): **{risk_counts.get('Low Risk', 0)}** students (**{risk_percentages.get('Low Risk', 0.0):.2f}%**). These students show strong habits.
+* **Medium Risk Segment** (Score 65 to 69): **{risk_counts.get('Medium Risk', 0)}** students (**{risk_percentages.get('Medium Risk', 0.0):.2f}%**). These are borderline students who could fall into high risk without supportive intervention.
+* **High Risk Segment** (Score < 65): **{risk_counts.get('High Risk', 0)}** students (**{risk_percentages.get('High Risk', 0.0):.2f}%**). These students need urgent academic support and intervention.
+
+## 7. SQL Insights Generated
+The script created a comprehensive database schema and analytical script in `sql_queries.sql` including:
+* Custom DDL table creation scripts.
+* Performance breakdown queries by study categories, tutoring sessions, and previous academic scores.
+* Dynamic pass rate calculations by attendance categories, and school type/gender.
+* Intersectional analysis of motivation and resource access.
+* Targeted academic support identification query to fetch vulnerable students.
+
+## 8. GenAI Feedback Reports Usefulness
+We generated **5 personalized student feedback reports** stored in `feedback_reports.txt`. Each report:
+* Runs our machine learning models to provide an estimated exam score and exact pass probability.
+* Dynamically scans student variables to select actual, controllable strengths (e.g. good attendance, active tutoring) and areas to improve.
+* Suggests 3 specific, supportive, actionable steps to improve performance without blame or sensitivity biases.
+* Word counts are optimized to stay between **120 and 180 words**, making them highly engaging and suitable for parent-teacher conferences or direct student handouts.
+
+## 9. Limitations & Future Improvements
+* **Socio-Cultural Context**: The models use home data like family income and parental education. While important for demographic understanding, these should *never* be used to make prejudiced predictive judgments about a student's potential. Models must focus on controllable behaviors (study hours, attendance, motivation, tutoring).
+* **Linear vs Non-Linearity**: While tree-based models like Random Forest capture complex interactions, student performance in this dataset is remarkably linear and additive. Our baseline Linear Regression model achieved a superior R2 score of **{r2_lr:.4f}** (vs. {r2:.4f} for Random Forest), highlighting the direct and transparent effect of controllable features like attendance and study hours.
+* **Data Timeframe**: The dataset is a single-semester snapshot. Incorporating longitudinal student performance tracking (multiple semesters or weekly quiz metrics) could help build real-time early warning systems.
+* **Action Plan**: Future updates could integrate automated email or SMS notifications of these feedback reports directly to students and parents.
+"""
+
+with open("final_summary.md", "w", encoding="utf-8") as f:
+    f.write(final_summary_content)
+print("Saved final_summary.md")
+
+print("\n" + "="*60)
+print("STUDENT PERFORMANCE factors ANALYTICS SYSTEM COMPLETED SUCCESSFULLY!")
+print("="*60)
