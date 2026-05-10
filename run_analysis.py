@@ -314,4 +314,132 @@ with open("eda_summary.md", "w", encoding="utf-8") as f:
     f.write(eda_md_content)
 print("Saved eda_summary.md")
 
+# =========================================================================
+# Task 6 & 7: Regression and Classification Models
+# =========================================================================
+print("\n--- Task 6 & 7: Regression and Classification Models ---")
+
+# Columns to use for predictive models (excluding engineered target leakage columns)
+model_features = [
+    "Hours_Studied", "Attendance", "Parental_Involvement", "Access_to_Resources",
+    "Extracurricular_Activities", "Sleep_Hours", "Previous_Scores", "Motivation_Level",
+    "Internet_Access", "Tutoring_Sessions", "Family_Income", "Teacher_Quality",
+    "School_Type", "Peer_Influence", "Physical_Activity", "Learning_Disabilities",
+    "Parental_Education_Level", "Distance_from_Home", "Gender"
+]
+
+# We encode categorical columns. Let's list which columns are categorical
+cat_features_for_model = [col for col in model_features if df[col].dtype == 'object' or df[col].dtype == 'str']
+num_features_for_model = [col for col in model_features if col not in cat_features_for_model]
+
+print(f"Features for modeling: {len(num_features_for_model)} numeric, {len(cat_features_for_model)} categorical.")
+
+# Create dummy encoded dataset for models (using drop_first=False so that we have complete importances for each level)
+# We can sum dummy importances for each parent categorical column
+X_raw = df[model_features]
+X_encoded = pd.get_dummies(X_raw, columns=cat_features_for_model, drop_first=False)
+
+# Target for regression
+y_reg = df["Exam_Score"]
+# Target for classification
+y_clf = df["Pass_Flag"]
+
+# Train/Test Split (80/20, fixed random seed 42)
+X_train_reg, X_test_reg, y_train_reg, y_test_reg = train_test_split(
+    X_encoded, y_reg, test_size=0.2, random_state=RANDOM_SEED
+)
+
+X_train_clf, X_test_clf, y_train_clf, y_test_clf = train_test_split(
+    X_encoded, y_clf, test_size=0.2, random_state=RANDOM_SEED
+)
+
+# --- 1. Regression Models ---
+# Baseline Model 1: Full Linear Regression (with drop_first=True for stats)
+X_encoded_stats = pd.get_dummies(X_raw, columns=cat_features_for_model, drop_first=True, dtype=float)
+
+X_train_stats, X_test_stats, y_train_stats, y_test_stats = train_test_split(
+    X_encoded_stats, y_reg, test_size=0.2, random_state=RANDOM_SEED
+)
+
+lr_stats_model = LinearRegression()
+lr_stats_model.fit(X_train_stats, y_train_stats)
+y_pred_lr = lr_stats_model.predict(X_test_stats)
+
+mae_lr = mean_absolute_error(y_test_stats, y_pred_lr)
+rmse_lr = np.sqrt(mean_squared_error(y_test_stats, y_pred_lr))
+r2_lr = r2_score(y_test_stats, y_pred_lr)
+
+# Calculate standard errors, t-statistics, and p-values using scipy
+coefs_stats = lr_stats_model.coef_
+intercept_stats = lr_stats_model.intercept_
+
+X_design = np.column_stack([np.ones(X_train_stats.shape[0]), X_train_stats.values])
+beta_stats = np.r_[intercept_stats, coefs_stats]
+
+predictions_train = X_design @ beta_stats
+residuals_train = y_train_stats.values - predictions_train
+
+n_samp, n_feat = X_design.shape
+s2_residual = np.sum(residuals_train**2) / (n_samp - n_feat)
+
+XTX_inv = np.linalg.inv(X_design.T @ X_design)
+cov_beta = s2_residual * XTX_inv
+standard_errors = np.sqrt(np.diag(cov_beta))
+
+t_statistics = beta_stats / standard_errors
+p_vals = 2 * (1 - stats.t.cdf(np.abs(t_statistics), n_samp - n_feat))
+
+stats_features = ["Intercept"] + list(X_train_stats.columns)
+stats_df = pd.DataFrame({
+    "Feature": stats_features,
+    "Coefficient": beta_stats,
+    "Std_Error": standard_errors,
+    "t_statistic": t_statistics,
+    "p_value": p_vals
+})
+
+stats_df.to_csv("linear_regression_results.csv", index=False)
+
+# Model 2: Simplified Equation-Based Linear Regression on High-Significance Controllable Factors
+# Factors: Hours_Studied, Attendance, Previous_Scores, Tutoring_Sessions, Physical_Activity
+key_behavior_cols = ["Hours_Studied", "Attendance", "Previous_Scores", "Tutoring_Sessions", "Physical_Activity"]
+X_simple_train = X_train_stats[key_behavior_cols]
+X_simple_test = X_test_stats[key_behavior_cols]
+
+lr_simple = LinearRegression()
+lr_simple.fit(X_simple_train, y_train_stats)
+y_pred_simple = lr_simple.predict(X_simple_test)
+
+mae_simple = mean_absolute_error(y_test_stats, y_pred_simple)
+rmse_simple = np.sqrt(mean_squared_error(y_test_stats, y_pred_simple))
+r2_simple = r2_score(y_test_stats, y_pred_simple)
+
+simple_intercept = lr_simple.intercept_
+simple_coefs = lr_simple.coef_
+
+# Advanced Model: Random Forest Regressor (trained on original X_encoded split)
+reg_model = RandomForestRegressor(n_estimators=100, random_state=RANDOM_SEED, n_jobs=-1)
+reg_model.fit(X_train_reg, y_train_reg)
+y_pred_reg = reg_model.predict(X_test_reg)
+
+mae = mean_absolute_error(y_test_reg, y_pred_reg)
+rmse = np.sqrt(mean_squared_error(y_test_reg, y_pred_reg))
+r2 = r2_score(y_test_reg, y_pred_reg)
+
+print("\nBaseline Regression Model Metrics (Full Linear Regression):")
+print(f"  - MAE: {mae_lr:.4f}")
+print(f"  - RMSE: {rmse_lr:.4f}")
+print(f"  - R2 Score: {r2_lr:.4f}")
+
+print("\nSimplified Equation-Based Regression Metrics (Key Controllable Behaviors):")
+print(f"  - MAE: {mae_simple:.4f}")
+print(f"  - RMSE: {rmse_simple:.4f}")
+print(f"  - R2 Score: {r2_simple:.4f}")
+print(f"  - Equation: Exam_Score = {simple_intercept:.2f} + {simple_coefs[0]:.4f}*Hours_Studied + {simple_coefs[1]:.4f}*Attendance + {simple_coefs[2]:.4f}*Previous_Scores + {simple_coefs[3]:.4f}*Tutoring_Sessions + {simple_coefs[4]:.4f}*Physical_Activity")
+
+print("\nAdvanced Regression Model Metrics (Random Forest Regressor):")
+print(f"  - MAE: {mae:.4f}")
+print(f"  - RMSE: {rmse:.4f}")
+print(f"  - R2 Score: {r2:.4f}")
+
 
