@@ -124,3 +124,68 @@ if not above_100_records.empty:
     print("  - NOTE: These records have NOT been deleted, but are flagged and documented.")
 else:
     print("  - No Exam_Scores above 100 found.")
+
+# =========================================================================
+# Task 3: Feature Engineering
+# =========================================================================
+print("\n--- Task 3: Feature Engineering ---")
+
+PASS_THRESHOLD = 65
+print(f"Using pass/fail threshold: {PASS_THRESHOLD} marks")
+
+# Pass_Flag
+df["Pass_Flag"] = (df["Exam_Score"] >= PASS_THRESHOLD).astype(int)
+
+# Risk_Level
+def get_risk_level(score):
+    if score < 65:
+        return "High Risk"
+    elif score <= 69:
+        return "Medium Risk"
+    else:
+        return "Low Risk"
+
+df["Risk_Level"] = df["Exam_Score"].apply(get_risk_level)
+
+# Study_Category
+def get_study_category(hours):
+    if hours < 15:
+        return "Low Study Hours"
+    elif hours <= 24:
+        return "Medium Study Hours"
+    else:
+        return "High Study Hours"
+
+df["Study_Category"] = df["Hours_Studied"].apply(get_study_category)
+
+# Attendance_Category
+def get_attendance_category(att):
+    if att < 70:
+        return "Low Attendance"
+    elif att <= 84:
+        return "Medium Attendance"
+    else:
+        return "High Attendance"
+
+df["Attendance_Category"] = df["Attendance"].apply(get_attendance_category)
+
+# Previous_Performance_Category
+def get_prev_perf_category(prev_score):
+    if prev_score < 65:
+        return "Low"
+    elif prev_score <= 84:
+        return "Medium"
+    else:
+        return "High"
+
+df["Previous_Performance_Category"] = df["Previous_Scores"].apply(get_prev_perf_category)
+
+print("New columns engineered successfully:")
+print("  - Pass_Flag, Risk_Level, Study_Category, Attendance_Category, Previous_Performance_Category")
+
+# Export Cleaned & Engineered Dataset
+cleaned_csv_path = "cleaned_student_performance.csv"
+df.to_csv(cleaned_csv_path, index=False)
+print(f"Cleaned dataset saved as: {cleaned_csv_path}")
+
+
