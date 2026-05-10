@@ -553,3 +553,160 @@ with open("student_performance_models.pkl", "wb") as f:
     pickle.dump(streamlit_models, f)
 print("Saved trained models to student_performance_models.pkl")
 
+# =========================================================================
+# Task 8: Visualizations
+# =========================================================================
+print("\n--- Task 8: Visualizations ---")
+
+# Cohesive Palette (Cool Slate/Teal/Warm Orange theme)
+MAIN_COLOR = "#0f4c5c"  # Dark Teal
+ACCENT_COLOR = "#e36414"  # Warm Orange
+NEUTRAL_LIGHT = "#e9ecef"
+MUTED_BLUE = "#5c677d"
+RISK_COLORS = ["#d90429", "#f7a072", "#2ec4b6"] # High, Medium, Low Risk colors
+
+# Chart 1: Exam Score Distribution
+plt.figure(figsize=(9, 5))
+sns.histplot(df["Exam_Score"], kde=True, color=MAIN_COLOR, edgecolor="black", alpha=0.8)
+plt.axvline(PASS_THRESHOLD, color="red", linestyle="--", linewidth=2, label=f"Pass Threshold ({PASS_THRESHOLD})")
+plt.title("Student Exam Score Distribution", fontsize=14, fontweight="bold", pad=15)
+plt.xlabel("Exam Score", fontsize=11)
+plt.ylabel("Student Count", fontsize=11)
+plt.grid(True, linestyle=":", alpha=0.6)
+plt.legend(fontsize=10)
+plt.tight_layout()
+plt.savefig("charts/1_exam_score_distribution.png", dpi=200)
+plt.close()
+print("Saved Chart 1: Exam Score Distribution")
+
+# Chart 2: Study Time vs Exam Score
+plt.figure(figsize=(9, 5))
+sns.regplot(data=df, x="Hours_Studied", y="Exam_Score", 
+            scatter_kws={"alpha": 0.4, "color": MAIN_COLOR, "s": 20}, 
+            line_kws={"color": ACCENT_COLOR, "linewidth": 2.5, "label": "Trend Line"})
+plt.title("Study Weekly Hours vs Final Exam Score", fontsize=14, fontweight="bold", pad=15)
+plt.xlabel("Hours Studied (Weekly)", fontsize=11)
+plt.ylabel("Exam Score", fontsize=11)
+plt.grid(True, linestyle=":", alpha=0.6)
+plt.tight_layout()
+plt.savefig("charts/2_study_time_vs_exam_score.png", dpi=200)
+plt.close()
+print("Saved Chart 2: Study Time vs Exam Score")
+
+# Chart 3: Attendance vs Exam Score
+plt.figure(figsize=(9, 5))
+sns.regplot(data=df, x="Attendance", y="Exam_Score", 
+            scatter_kws={"alpha": 0.4, "color": "#2ec4b6", "s": 20}, 
+            line_kws={"color": ACCENT_COLOR, "linewidth": 2.5, "label": "Trend Line"})
+plt.title("School Attendance Rate vs Final Exam Score", fontsize=14, fontweight="bold", pad=15)
+plt.xlabel("Attendance Rate (%)", fontsize=11)
+plt.ylabel("Exam Score", fontsize=11)
+plt.grid(True, linestyle=":", alpha=0.6)
+plt.tight_layout()
+plt.savefig("charts/3_attendance_vs_exam_score.png", dpi=200)
+plt.close()
+print("Saved Chart 3: Attendance vs Exam Score")
+
+# Chart 4: Previous Scores vs Exam Score
+plt.figure(figsize=(9, 5))
+sns.regplot(data=df, x="Previous_Scores", y="Exam_Score", 
+            scatter_kws={"alpha": 0.4, "color": MUTED_BLUE, "s": 20}, 
+            line_kws={"color": ACCENT_COLOR, "linewidth": 2.5, "label": "Trend Line"})
+plt.title("Previous Student Scores vs Current Exam Score", fontsize=14, fontweight="bold", pad=15)
+plt.xlabel("Previous Semester Score", fontsize=11)
+plt.ylabel("Current Exam Score", fontsize=11)
+plt.grid(True, linestyle=":", alpha=0.6)
+plt.tight_layout()
+plt.savefig("charts/4_previous_scores_vs_exam_score.png", dpi=200)
+plt.close()
+print("Saved Chart 4: Previous Scores vs Exam Score")
+
+# Chart 5: Correlation Heatmap
+plt.figure(figsize=(9, 7))
+corr_matrix = df[["Hours_Studied", "Attendance", "Sleep_Hours", "Previous_Scores", "Tutoring_Sessions", "Physical_Activity", "Exam_Score"]].corr()
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".3f", linewidths=0.5, cbar=True, square=True)
+plt.title("Pearson Correlation Heatmap of Student Numeric Factors", fontsize=13, fontweight="bold", pad=15)
+plt.tight_layout()
+plt.savefig("charts/5_correlation_heatmap.png", dpi=200)
+plt.close()
+print("Saved Chart 5: Correlation Heatmap")
+
+# Chart 6: Average Score by Motivation Level
+plt.figure(figsize=(8, 5))
+motivation_order = ["Low", "Medium", "High"]
+sns.barplot(data=df, x="Motivation_Level", y="Exam_Score", order=motivation_order, palette="viridis", errorbar=None, edgecolor="black")
+plt.title("Average Final Exam Score by Student Motivation Level", fontsize=13, fontweight="bold", pad=15)
+plt.xlabel("Student Motivation Level", fontsize=11)
+plt.ylabel("Average Exam Score", fontsize=11)
+plt.ylim(50, 75)
+for p in plt.gca().patches:
+    plt.gca().annotate(f"{p.get_height():.2f}", (p.get_x() + p.get_width() / 2., p.get_height() + 0.3),
+                ha='center', va='center', fontsize=10, fontweight='bold', color='black', xytext=(0, 5), textcoords='offset points')
+plt.grid(True, axis="y", linestyle=":", alpha=0.6)
+plt.tight_layout()
+plt.savefig("charts/6_average_score_by_motivation_level.png", dpi=200)
+plt.close()
+print("Saved Chart 6: Average Score by Motivation Level")
+
+# Chart 7: Average Score by Access to Resources
+plt.figure(figsize=(8, 5))
+resources_order = ["Low", "Medium", "High"]
+sns.barplot(data=df, x="Access_to_Resources", y="Exam_Score", order=resources_order, palette="magma", errorbar=None, edgecolor="black")
+plt.title("Average Final Exam Score by Access to Study Resources", fontsize=13, fontweight="bold", pad=15)
+plt.xlabel("Access to Learning Resources", fontsize=11)
+plt.ylabel("Average Exam Score", fontsize=11)
+plt.ylim(50, 75)
+for p in plt.gca().patches:
+    plt.gca().annotate(f"{p.get_height():.2f}", (p.get_x() + p.get_width() / 2., p.get_height() + 0.3),
+                ha='center', va='center', fontsize=10, fontweight='bold', color='black', xytext=(0, 5), textcoords='offset points')
+plt.grid(True, axis="y", linestyle=":", alpha=0.6)
+plt.tight_layout()
+plt.savefig("charts/7_average_score_by_access_to_resources.png", dpi=200)
+plt.close()
+print("Saved Chart 7: Average Score by Access to Resources")
+
+# Chart 8: Pass/Fail Count
+plt.figure(figsize=(7, 5))
+pass_fail_labels = ["Passed (>=65)", "Failed (<65)"]
+pass_fail_values = [pass_count, fail_count]
+sns.barplot(x=pass_fail_labels, y=pass_fail_values, palette=["#2ec4b6", "#e71d36"], edgecolor="black")
+plt.title("Total Number of Students Passing vs Failing", fontsize=13, fontweight="bold", pad=15)
+plt.ylabel("Student Count", fontsize=11)
+for p in plt.gca().patches:
+    plt.gca().annotate(f"{int(p.get_height())} ({p.get_height()/len(df)*100:.1f}%)", (p.get_x() + p.get_width() / 2., p.get_height() + 50),
+                ha='center', va='center', fontsize=11, fontweight='bold', color='black', xytext=(0, 5), textcoords='offset points')
+plt.grid(True, axis="y", linestyle=":", alpha=0.6)
+plt.tight_layout()
+plt.savefig("charts/8_pass_fail_count.png", dpi=200)
+plt.close()
+print("Saved Chart 8: Pass/Fail Count")
+
+# Chart 9: Risk Segment Breakdown
+plt.figure(figsize=(8, 5))
+risk_order = ["High Risk", "Medium Risk", "Low Risk"]
+risk_vals = [risk_counts.get(r, 0) for r in risk_order]
+sns.barplot(x=risk_order, y=risk_vals, palette=RISK_COLORS, edgecolor="black")
+plt.title("Student Count by Risk Segment Category", fontsize=13, fontweight="bold", pad=15)
+plt.ylabel("Student Count", fontsize=11)
+for p in plt.gca().patches:
+    plt.gca().annotate(f"{int(p.get_height())} ({p.get_height()/len(df)*100:.1f}%)", (p.get_x() + p.get_width() / 2., p.get_height() + 50),
+                ha='center', va='center', fontsize=11, fontweight='bold', color='black', xytext=(0, 5), textcoords='offset points')
+plt.grid(True, axis="y", linestyle=":", alpha=0.6)
+plt.tight_layout()
+plt.savefig("charts/9_risk_segment_breakdown.png", dpi=200)
+plt.close()
+print("Saved Chart 9: Risk Segment Breakdown")
+
+# Chart 10: Top Factors Summary
+plt.figure(figsize=(9, 6))
+top_factors_df = pd.DataFrame(sorted_importances[:10], columns=["Feature", "Importance"])
+sns.barplot(data=top_factors_df, y="Feature", x="Importance", palette="coolwarm", edgecolor="black")
+plt.title("Top 10 Most Influential Student Performance Factors", fontsize=13, fontweight="bold", pad=15)
+plt.xlabel("Aggregated Machine Learning Feature Importance", fontsize=11)
+plt.ylabel("Student Factors", fontsize=11)
+plt.grid(True, axis="x", linestyle=":", alpha=0.6)
+plt.tight_layout()
+plt.savefig("charts/10_top_factors_summary.png", dpi=200)
+plt.close()
+print("Saved Chart 10: Top Factors Summary")
+
