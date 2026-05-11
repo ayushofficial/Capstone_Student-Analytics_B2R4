@@ -1,0 +1,2820 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudPerf · Academic Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Mono:ital,wght@0,300;0,400;0,500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ─── RESET ─────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ─── DESIGN TOKENS ──────────────────────────────────── */
+    :root {
+      --bg-base: #07090F;
+      --bg-surface: #0C1018;
+      --bg-card: #101520;
+      --bg-elevated: #182030;
+      --bg-input: #141a26;
+
+      --amber: #F0A030;
+      --amber-bright: #FFB340;
+      --amber-dim: rgba(240, 160, 48, 0.10);
+      --amber-border: rgba(240, 160, 48, 0.22);
+
+      --cyan: #22D3EE;
+      --cyan-dim: rgba(34, 211, 238, 0.09);
+
+      --emerald: #10D988;
+      --emerald-dim: rgba(16, 217, 136, 0.10);
+      --emerald-b: rgba(16, 217, 136, 0.20);
+
+      --amber-risk: #F59E0B;
+      --coral: #F36560;
+      --coral-dim: rgba(243, 101, 96, 0.10);
+      --coral-b: rgba(243, 101, 96, 0.20);
+
+      --text-primary: #ECF2FA;
+      --text-secondary: #7D94AD;
+      --text-muted: #344558;
+
+      --border-subtle: rgba(255, 255, 255, 0.052);
+      --border-card: rgba(255, 255, 255, 0.076);
+
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-mono: 'DM Mono', 'Courier New', monospace;
+      --font-body: 'Lora', Georgia, serif;
+
+      --sidebar-w: 292px;
+      --nav-h: 56px;
+      --radius: 12px;
+    }
+
+    /* ─── LIGHT MODE TOKENS ──────────────────────────────── */
+    body.light {
+      --bg-base: #F4F6FA;
+      --bg-surface: #EBEEF5;
+      --bg-card: #FFFFFF;
+      --bg-elevated: #DDE2ED;
+      --bg-input: #EDF0F7;
+
+      --text-primary: #111827;
+      --text-secondary: #4B5563;
+      --text-muted: #9CA3AF;
+
+      --border-subtle: rgba(0, 0, 0, 0.07);
+      --border-card: rgba(0, 0, 0, 0.10);
+
+      --amber-dim: rgba(240, 160, 48, 0.12);
+      --amber-border: rgba(240, 160, 48, 0.30);
+      --cyan-dim: rgba(34, 211, 238, 0.10);
+      --emerald-dim: rgba(16, 217, 136, 0.12);
+      --emerald-b: rgba(16, 217, 136, 0.28);
+      --coral-dim: rgba(243, 101, 96, 0.10);
+      --coral-b: rgba(243, 101, 96, 0.25);
+    }
+
+    body.light .nav {
+      background: rgba(244, 246, 250, 0.92);
+    }
+
+    body.light .nav-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    body.light .nav-tabs {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    body.light .nav-logomark {
+      box-shadow: 0 0 16px rgba(240, 160, 48, 0.22);
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 13px;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* ─── GRAIN OVERLAY ──────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.038'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9000;
+      opacity: 0.55;
+    }
+
+    /* ─── SCROLLBAR ───────────────────────────────────────── */
+    ::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--text-muted);
+      border-radius: 2px;
+    }
+
+    /* ─── NAVIGATION ─────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-h);
+      background: rgba(7, 9, 15, 0.88);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 500;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+      user-select: none;
+    }
+
+    .nav-logomark {
+      width: 30px;
+      height: 30px;
+      background: var(--amber);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--bg-base);
+      font-family: var(--font-display);
+      box-shadow: 0 0 16px rgba(240, 160, 48, 0.28);
+    }
+
+    .nav-logo em {
+      font-style: normal;
+      color: var(--amber);
+    }
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 3px;
+    }
+
+    .nav-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      padding: 5px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-btn.active {
+      color: var(--amber);
+      background: var(--amber-dim);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border-card);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      transition: background 0.18s, color 0.18s, border-color 0.18s;
+      line-height: 1;
+    }
+
+    .theme-btn:hover {
+      background: var(--amber-dim);
+      border-color: var(--amber-border);
+      color: var(--amber);
+    }
+
+    body.light .theme-btn {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      color: var(--emerald);
+      background: var(--emerald-dim);
+      padding: 4px 10px;
+      border-radius: 100px;
+      border: 1px solid var(--emerald-b);
+    }
+
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--emerald);
+      border-radius: 50%;
+      animation: blink 2.2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.7);
+      }
+    }
+
+    /* ─── LAYOUT ──────────────────────────────────────────── */
+    .app {
+      display: flex;
+      margin-top: var(--nav-h);
+      min-height: calc(100vh - var(--nav-h));
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      padding: 18px 14px 28px;
+    }
+
+    /* subtle grid-paper texture on sidebar */
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+
+    .sb-section {
+      margin-bottom: 24px;
+    }
+
+    .sb-label {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 14px;
+    }
+
+    .ctrl {
+      margin-bottom: 13px;
+    }
+
+    .ctrl-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .ctrl-name {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+
+    .ctrl-val {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--amber);
+    }
+
+    /* Range inputs */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 2px;
+      background: var(--border-card);
+      border-radius: 1px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 13px;
+      height: 13px;
+      background: var(--amber);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(240, 160, 48, 0.5);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      box-shadow: 0 0 18px rgba(240, 160, 48, 0.7);
+    }
+
+    input[type="range"]:focus {
+      outline: none;
+    }
+
+    /* Selects */
+    .ctrl-name-block {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+      letter-spacing: 0.02em;
+    }
+
+    select {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-card);
+      color: var(--text-primary);
+      padding: 7px 28px 7px 10px;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237D94AD' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 9px center;
+      transition: border-color 0.15s;
+    }
+
+    select:focus {
+      border-color: var(--amber-border);
+    }
+
+    .run-btn {
+      width: 100%;
+      margin-top: 4px;
+      padding: 11px;
+      background: var(--amber);
+      color: var(--bg-base);
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .run-btn:hover {
+      background: var(--amber-bright);
+      box-shadow: 0 4px 20px rgba(240, 160, 48, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .run-btn:active {
+      transform: translateY(0);
+    }
+
+    /* ─── MAIN PANEL ──────────────────────────────────────── */
+    .main {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      min-width: 0;
+    }
+
+    /* Tab panes */
+    .pane {
+      display: none;
+      animation: fade-up 0.38s ease forwards;
+    }
+
+    .pane.active {
+      display: block;
+    }
+
+    @keyframes fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── CARDS ───────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Top accent bar */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent 0%, var(--amber) 40%, transparent 100%);
+      opacity: 0.45;
+    }
+
+    .card-pad {
+      padding: 24px;
+    }
+
+    .card-label {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    /* ─── PREDICTION PANE ─────────────────────────────────── */
+    .pred-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    /* Score card + glow */
+    .score-card {
+      transition: box-shadow 1s ease;
+    }
+
+    .gauge-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .gauge-svg {
+      overflow: visible;
+    }
+
+    .gauge-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.055);
+      stroke-width: 9;
+      stroke-linecap: round;
+    }
+
+    .gauge-arc {
+      fill: none;
+      stroke-width: 9;
+      stroke-linecap: round;
+      transition: stroke-dasharray 1s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.6s ease;
+    }
+
+    .gauge-score-txt {
+      font-family: var(--font-display);
+      font-size: 50px;
+      font-weight: 900;
+      fill: var(--text-primary);
+      transition: fill 0.5s;
+    }
+
+    .gauge-sub {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      fill: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    .gauge-edge {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      fill: var(--text-muted);
+    }
+
+    .score-meta {
+      display: flex;
+      gap: 24px;
+      margin-top: 14px;
+    }
+
+    .score-meta-item {
+      text-align: center;
+    }
+
+    .score-meta-val {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .score-meta-lbl {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Risk card */
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 13px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      border: 1px solid;
+    }
+
+    .risk-badge.low {
+      background: var(--emerald-dim);
+      color: var(--emerald);
+      border-color: var(--emerald-b);
+    }
+
+    .risk-badge.med {
+      background: rgba(245, 158, 11, 0.10);
+      color: var(--amber-risk);
+      border-color: rgba(245, 158, 11, 0.22);
+    }
+
+    .risk-badge.high {
+      background: var(--coral-dim);
+      color: var(--coral);
+      border-color: var(--coral-b);
+    }
+
+    .risk-desc {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 18px;
+    }
+
+    .factor-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .fbar-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .fbar-lbl {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--text-secondary);
+      width: 82px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+
+    .fbar-track {
+      flex: 1;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.055);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .fbar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fbar-num {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-secondary);
+      width: 42px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Factors grid */
+    .factors-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .factor-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 9px;
+      padding: 13px 10px;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.18s;
+      cursor: default;
+    }
+
+    .factor-chip:hover {
+      border-color: var(--amber-border);
+      transform: translateY(-2px);
+    }
+
+    .fc-icon {
+      font-size: 17px;
+      margin-bottom: 6px;
+    }
+
+    .fc-lbl {
+      font-family: var(--font-mono);
+      font-size: 7.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 3px;
+    }
+
+    .fc-val {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    /* Diagnostic report */
+    .report-hd {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .report-title {
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .report-date {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    .report-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .rcol-title {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .ritem {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 9px;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .ritem-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .dot-g {
+      background: var(--emerald);
+    }
+
+    .dot-r {
+      background: var(--coral);
+    }
+
+    .dot-a {
+      background: var(--amber);
+    }
+
+    /* ─── ANALYTICS PANE ──────────────────────────────────── */
+    .pane-hd {
+      margin-bottom: 22px;
+    }
+
+    .pane-title {
+      font-family: var(--font-display);
+      font-size: 27px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .pane-sub {
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      color: var(--text-secondary);
+    }
+
+    /* Model table */
+    .tbl-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .mdl-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .mdl-table th {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 13px 18px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+    }
+
+    .mdl-table td {
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .mdl-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .mdl-table tr.winner td {
+      background: rgba(240, 160, 48, 0.045);
+    }
+
+    .mdl-table tr:not(.winner):hover td {
+      background: rgba(255, 255, 255, 0.018);
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      font-size: 9.5px;
+      font-weight: 500;
+    }
+
+    .r1 {
+      background: var(--amber-dim);
+      color: var(--amber);
+    }
+
+    .r2 {
+      background: rgba(34, 211, 238, 0.08);
+      color: var(--cyan);
+    }
+
+    .r3 {
+      background: rgba(127, 140, 153, 0.12);
+      color: var(--text-secondary);
+    }
+
+    .r4 {
+      background: rgba(127, 140, 153, 0.07);
+      color: var(--text-muted);
+    }
+
+    .mdl-name {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .mbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mbar-track {
+      flex: 1;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.055);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .mbar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 1.1s ease;
+    }
+
+    /* Equation */
+    .eq-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin: 14px 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 2.1;
+      letter-spacing: 0.01em;
+    }
+
+    .eq-vars {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .eq-var-sym {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+
+    .eq-var-lbl {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* Key insights */
+    .insights-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .insight-card {
+      padding: 20px;
+      border-radius: var(--radius);
+    }
+
+    .insight-val {
+      font-family: var(--font-display);
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--amber);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .insight-lbl {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .insight-desc {
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* ─── EXPLORER PANE ───────────────────────────────────── */
+    .explorer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .chart-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .chart-sub {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 18px;
+    }
+
+    /* Correlation bars */
+    .corr-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .corr-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .corr-name {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-secondary);
+      width: 120px;
+      flex-shrink: 0;
+    }
+
+    .corr-track {
+      flex: 1;
+      height: 3.5px;
+      background: rgba(255, 255, 255, 0.055);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .corr-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--cyan);
+      transition: width 1.1s ease;
+    }
+
+    .corr-val {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--cyan);
+      width: 36px;
+      text-align: right;
+    }
+
+    .corr-insig .corr-fill {
+      background: var(--text-muted);
+    }
+
+    .corr-insig .corr-val {
+      color: var(--text-muted);
+    }
+
+    /* Bar chart */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      height: 130px;
+      margin-top: 8px;
+    }
+
+    .bar-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .bar-num {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-secondary);
+    }
+
+    .bar-col {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .bar-lbl {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* Avg score grid */
+    .avg-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .avg-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .avg-val {
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .avg-lbl {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .stat-note {
+      background: rgba(34, 211, 238, 0.045);
+      border: 1px solid rgba(34, 211, 238, 0.14);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-top: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .stat-note-icon {
+      font-size: 18px;
+      margin-top: 1px;
+    }
+
+    .stat-note-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--cyan);
+      margin-bottom: 5px;
+    }
+
+    .stat-note-body {
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ─── AURA PANE ───────────────────────────────────────── */
+    .aura-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 16px;
+      height: calc(100vh - var(--nav-h) - 68px);
+    }
+
+    .chat-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .aura-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: conic-gradient(from 90deg, var(--amber), var(--cyan), var(--amber));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      animation: spin-slow 12s linear infinite;
+    }
+
+    @keyframes spin-slow {
+      to {
+        filter: hue-rotate(40deg);
+      }
+    }
+
+    .aura-info-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .aura-info-sub {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    .chat-msgs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .msg {
+      display: flex;
+      gap: 9px;
+      animation: msg-in 0.28s ease;
+    }
+
+    .msg.user {
+      flex-direction: row-reverse;
+    }
+
+    @keyframes msg-in {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg-av {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .msg-av.aura-av {
+      background: conic-gradient(from 90deg, var(--amber), var(--cyan), var(--amber));
+      animation: spin-slow 14s linear infinite;
+    }
+
+    .msg-av.user-av {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-card);
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--text-secondary);
+    }
+
+    .bubble {
+      max-width: 74%;
+      padding: 11px 15px;
+      border-radius: 11px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .msg.aura .bubble {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-card);
+      color: var(--text-secondary);
+      border-radius: 3px 11px 11px 11px;
+    }
+
+    .msg.user .bubble {
+      background: var(--amber-dim);
+      border: 1px solid var(--amber-border);
+      color: var(--text-primary);
+      border-radius: 11px 3px 11px 11px;
+    }
+
+    .chat-footer {
+      padding: 14px 18px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 9px;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: 6px;
+      padding: 9px 13px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 12px;
+      outline: none;
+      resize: none;
+      transition: border-color 0.15s;
+    }
+
+    .chat-input:focus {
+      border-color: var(--amber-border);
+    }
+
+    .chat-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .chat-send {
+      padding: 9px 17px;
+      background: var(--amber);
+      color: var(--bg-base);
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.17s;
+    }
+
+    .chat-send:hover {
+      background: var(--amber-bright);
+    }
+
+    .chat-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Typing indicator */
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: 3px 11px 11px 11px;
+      width: fit-content;
+    }
+
+    .tdot {
+      width: 4px;
+      height: 4px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: tdot 1.2s ease-in-out infinite;
+    }
+
+    .tdot:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+
+    .tdot:nth-child(3) {
+      animation-delay: 0.36s;
+    }
+
+    @keyframes tdot {
+
+      0%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+
+      50% {
+        transform: translateY(-4px);
+        opacity: 1;
+      }
+    }
+
+    /* Aura sidebar */
+    .aura-side {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .aside-title {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 11px;
+    }
+
+    .prompt-chip {
+      display: block;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 5px;
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+      width: 100%;
+    }
+
+    .prompt-chip:hover {
+      background: var(--amber-dim);
+      border-color: var(--amber-border);
+      color: var(--text-primary);
+    }
+
+    .profile-mono {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      line-height: 1.9;
+    }
+
+    .pv {
+      color: var(--amber);
+    }
+
+    /* ─── UTILS ───────────────────────────────────────────── */
+    .gap18 {
+      margin-bottom: 18px;
+    }
+
+    .amber {
+      color: var(--amber);
+    }
+
+    .cyan {
+      color: var(--cyan);
+    }
+
+    .emrld {
+      color: var(--emerald);
+    }
+
+    .coral {
+      color: var(--coral);
+    }
+
+    /* ─── API STATUS BANNER ───────────────────────────────────── */
+    .api-banner {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      padding: 7px 13px;
+      border-radius: 100px;
+      border: 1px solid;
+      z-index: 9998;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+
+    .api-banner.ok {
+      background: var(--emerald-dim);
+      color: var(--emerald);
+      border-color: var(--emerald-b);
+    }
+
+    .api-banner.offline {
+      background: var(--coral-dim);
+      color: var(--coral);
+      border-color: var(--coral-b);
+    }
+
+    .api-banner.checking {
+      background: var(--amber-dim);
+      color: var(--amber);
+      border-color: var(--amber-border);
+    }
+
+    .api-banner-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .api-banner.ok .api-banner-dot {
+      animation: blink 2s infinite;
+    }
+
+    .api-banner.checking .api-banner-dot {
+      animation: blink 0.6s infinite;
+    }
+
+    /* Loading shimmer on gauge score while API call in flight */
+    .score-loading #g-score {
+      animation: score-pulse 0.7s ease-in-out infinite alternate;
+    }
+
+    @keyframes score-pulse {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0.25;
+      }
+    }
+
+    /* Streaming cursor at end of Aura message */
+    .streaming::after {
+      content: '▋';
+      color: var(--amber);
+      animation: blink 0.8s step-end infinite;
+      margin-left: 2px;
+    }
+
+    /* ─── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .factors-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .insights-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 860px) {
+      :root {
+        --sidebar-w: 250px;
+      }
+
+      .pred-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .report-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .aura-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .explorer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: 100%;
+        height: auto;
+        position: static;
+      }
+
+      .nav-tabs {
+        display: none;
+      }
+
+      .factors-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ════════════════ NAV ════════════════ -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="nav-logomark">S</div>
+      Stud<em>Perf</em>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-btn active" onclick="switchPane('predict',this)">Diagnostic</button>
+      <button class="nav-btn" onclick="switchPane('analytics',this)">Analytics</button>
+      <button class="nav-btn" onclick="switchPane('explorer',this)">Explorer</button>
+      <button class="nav-btn" onclick="switchPane('aura',this)">Aura AI</button>
+    </div>
+
+    <div class="nav-right">
+      <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle light / dark mode">🌙</button>
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        Models Live
+      </div>
+    </div>
+  </nav>
+
+  <div class="app">
+
+    <!-- ════════════════ SIDEBAR ════════════════ -->
+    <aside class="sidebar">
+      <div class="sb-section">
+        <div class="sb-label">Academic Habits</div>
+
+        <div class="ctrl">
+          <div class="ctrl-head">
+            <span class="ctrl-name">Hours Studied / Week</span>
+            <span class="ctrl-val" id="v-hours">20</span>
+          </div>
+          <input type="range" min="0" max="44" value="20" id="sl-hours" oninput="v('v-hours',this.value);update()">
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-head">
+            <span class="ctrl-name">Attendance Rate (%)</span>
+            <span class="ctrl-val" id="v-att">80</span>
+          </div>
+          <input type="range" min="60" max="100" value="80" id="sl-att" oninput="v('v-att',this.value);update()">
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-head">
+            <span class="ctrl-name">Previous Score</span>
+            <span class="ctrl-val" id="v-prev">70</span>
+          </div>
+          <input type="range" min="40" max="100" value="70" id="sl-prev" oninput="v('v-prev',this.value);update()">
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-head">
+            <span class="ctrl-name">Tutoring Sessions / Month</span>
+            <span class="ctrl-val" id="v-tutor">2</span>
+          </div>
+          <input type="range" min="0" max="8" value="2" id="sl-tutor" oninput="v('v-tutor',this.value);update()">
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-head">
+            <span class="ctrl-name">Sleep Hours / Night</span>
+            <span class="ctrl-val" id="v-sleep">7</span>
+          </div>
+          <input type="range" min="4" max="10" value="7" id="sl-sleep" oninput="v('v-sleep',this.value);update()">
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-head">
+            <span class="ctrl-name">Physical Activity hrs/wk</span>
+            <span class="ctrl-val" id="v-phys">3</span>
+          </div>
+          <input type="range" min="0" max="6" value="3" id="sl-phys" oninput="v('v-phys',this.value);update()">
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Environment & Background</div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Motivation Level</div>
+          <select id="sel-motiv" onchange="update()">
+            <option value="High">High</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Access to Resources</div>
+          <select id="sel-res" onchange="update()">
+            <option value="High">High</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Parental Involvement</div>
+          <select id="sel-par" onchange="update()">
+            <option value="High">High</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Peer Influence</div>
+          <select id="sel-peer" onchange="update()">
+            <option value="Positive" selected>Positive</option>
+            <option value="Neutral">Neutral</option>
+            <option value="Negative">Negative</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Family Income</div>
+          <select id="sel-inc" onchange="update()">
+            <option value="High">High</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Internet Access</div>
+          <select id="sel-net" onchange="update()">
+            <option value="Yes" selected>Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+        <button class="run-btn" onclick="update()">↻ Recalculate</button>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Demographics</div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Teacher Quality</div>
+          <select id="sel-tq" onchange="update()">
+            <option value="High">High</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Extracurricular Activities</div>
+          <select id="sel-extra" onchange="update()">
+            <option value="Yes">Yes</option>
+            <option value="No" selected>No</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Learning Disabilities</div>
+          <select id="sel-dis" onchange="update()">
+            <option value="No" selected>No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Parental Education</div>
+          <select id="sel-pedu" onchange="update()">
+            <option value="Postgraduate">Postgraduate</option>
+            <option value="College" selected>College</option>
+            <option value="High School">High School</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Distance from School</div>
+          <select id="sel-dist" onchange="update()">
+            <option value="Near" selected>Near</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Far">Far</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">School Type</div>
+          <select id="sel-stype" onchange="update()">
+            <option value="Private" selected>Private</option>
+            <option value="Public">Public</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <div class="ctrl-name-block">Gender</div>
+          <select id="sel-gender" onchange="update()">
+            <option value="Female" selected>Female</option>
+            <option value="Male">Male</option>
+          </select>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ════════════════ MAIN ════════════════ -->
+    <main class="main">
+
+      <!-- ──── DIAGNOSTIC PANE ──── -->
+      <div class="pane active" id="pane-predict">
+
+        <!-- Row 1: Score + Risk -->
+        <div class="pred-grid gap18">
+
+          <!-- Score card -->
+          <div class="card card-pad score-card" id="score-card">
+            <div class="card-label">Predicted Exam Score</div>
+            <div class="gauge-wrap">
+              <svg class="gauge-svg" width="210" height="124" viewBox="0 0 210 124">
+                <!-- Semicircle track (left 15,100 → right 195,100, radius 90) -->
+                <path class="gauge-track" d="M 15 100 A 90 90 0 0 1 195 100" />
+                <path class="gauge-arc" id="g-arc" d="M 15 100 A 90 90 0 0 1 195 100" stroke="var(--amber)"
+                  stroke-dasharray="0 283" />
+                <text class="gauge-score-txt" id="g-score" x="105" y="90" text-anchor="middle">67</text>
+                <text class="gauge-sub" x="105" y="109" text-anchor="middle">out of 100</text>
+                <text class="gauge-edge" x="13" y="118" text-anchor="middle">40</text>
+                <text class="gauge-edge" x="197" y="118" text-anchor="middle">100</text>
+              </svg>
+              <div class="score-meta">
+                <div class="score-meta-item">
+                  <div class="score-meta-val" id="g-pass">78%</div>
+                  <div class="score-meta-lbl">Pass Prob.</div>
+                </div>
+                <div class="score-meta-item">
+                  <div class="score-meta-val" id="g-pct">52nd</div>
+                  <div class="score-meta-lbl">Percentile</div>
+                </div>
+                <div class="score-meta-item">
+                  <div class="score-meta-val" id="g-status">Passing</div>
+                  <div class="score-meta-lbl">Status</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk card -->
+          <div class="card card-pad">
+            <div class="card-label">Risk Assessment</div>
+            <div class="risk-badge med" id="risk-badge">
+              <span id="risk-dot">●</span>
+              <span id="risk-text">Medium Risk</span>
+            </div>
+            <p class="risk-desc" id="risk-desc">
+              Score in the 65–69 range. Student is passing but has meaningful room
+              to improve, especially in study consistency and attendance.
+            </p>
+            <div class="factor-bars">
+              <div class="fbar-row">
+                <div class="fbar-lbl">Attendance</div>
+                <div class="fbar-track">
+                  <div class="fbar-fill" id="fb-att" style="width:80%;background:var(--cyan)"></div>
+                </div>
+                <div class="fbar-num" id="fn-att">80%</div>
+              </div>
+              <div class="fbar-row">
+                <div class="fbar-lbl">Study Hours</div>
+                <div class="fbar-track">
+                  <div class="fbar-fill" id="fb-hrs" style="width:45%;background:var(--amber)"></div>
+                </div>
+                <div class="fbar-num" id="fn-hrs">20 h</div>
+              </div>
+              <div class="fbar-row">
+                <div class="fbar-lbl">Tutoring</div>
+                <div class="fbar-track">
+                  <div class="fbar-fill" id="fb-tut" style="width:25%;background:var(--emerald)"></div>
+                </div>
+                <div class="fbar-num" id="fn-tut">2/mo</div>
+              </div>
+              <div class="fbar-row">
+                <div class="fbar-lbl">Prev. Score</div>
+                <div class="fbar-track">
+                  <div class="fbar-fill" id="fb-prv" style="width:50%;background:var(--amber-risk)"></div>
+                </div>
+                <div class="fbar-num" id="fn-prv">70</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Factor chips -->
+        <div class="factors-row gap18">
+          <div class="factor-chip">
+            <div class="fc-icon">📚</div>
+            <div class="fc-lbl">Study</div>
+            <div class="fc-val" id="fc-hrs">20 h/wk</div>
+          </div>
+          <div class="factor-chip">
+            <div class="fc-icon">🎯</div>
+            <div class="fc-lbl">Attendance</div>
+            <div class="fc-val" id="fc-att">80%</div>
+          </div>
+          <div class="factor-chip">
+            <div class="fc-icon">🏫</div>
+            <div class="fc-lbl">Tutoring</div>
+            <div class="fc-val" id="fc-tut">2 ses.</div>
+          </div>
+          <div class="factor-chip">
+            <div class="fc-icon">💡</div>
+            <div class="fc-lbl">Motivation</div>
+            <div class="fc-val" id="fc-mot">Medium</div>
+          </div>
+          <div class="factor-chip">
+            <div class="fc-icon">😴</div>
+            <div class="fc-lbl">Sleep</div>
+            <div class="fc-val" id="fc-slp">7 hrs</div>
+          </div>
+          <div class="factor-chip">
+            <div class="fc-icon">🏃</div>
+            <div class="fc-lbl">Activity</div>
+            <div class="fc-val" id="fc-phy">3 h/wk</div>
+          </div>
+        </div>
+
+        <!-- Row 3: Diagnostic report -->
+        <div class="card card-pad">
+          <div class="report-hd">
+            <div class="report-title">Personalized Diagnostic Report</div>
+            <div class="report-date">Generated · May 2026</div>
+          </div>
+          <div class="report-cols">
+            <div>
+              <div class="rcol-title">Strengths</div>
+              <div id="rep-strengths">
+                <div class="ritem">
+                  <div class="ritem-dot dot-g"></div><span>Attendance above 75% — solid classroom engagement</span>
+                </div>
+                <div class="ritem">
+                  <div class="ritem-dot dot-g"></div><span>Regular tutoring sessions bridging knowledge gaps</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="rcol-title">Areas for Growth</div>
+              <div id="rep-growth">
+                <div class="ritem">
+                  <div class="ritem-dot dot-r"></div><span>Study hours below the 25 hrs/week performance
+                    threshold</span>
+                </div>
+                <div class="ritem">
+                  <div class="ritem-dot dot-r"></div><span>Medium motivation limits self-directed revision</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="rcol-title">Action Plan</div>
+              <div id="rep-actions">
+                <div class="ritem">
+                  <div class="ritem-dot dot-a"></div><span>Increase daily study to 5 focused hours, 5 days a week</span>
+                </div>
+                <div class="ritem">
+                  <div class="ritem-dot dot-a"></div><span>Set weekly goals with a peer accountability partner</span>
+                </div>
+                <div class="ritem">
+                  <div class="ritem-dot dot-a"></div><span>Add 2 tutoring sessions/month on weakest subjects</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── ANALYTICS PANE ──── -->
+      <div class="pane" id="pane-analytics">
+        <div class="pane-hd">
+          <div class="pane-title">Model Comparative Analytics</div>
+          <div class="pane-sub">Four models trained on 6,607 student records · Linear Regression leads with 77% variance
+            explained</div>
+        </div>
+
+        <!-- Model leaderboard -->
+        <div class="card tbl-card gap18">
+          <table class="mdl-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Model</th>
+                <th>Type</th>
+                <th>R² / Accuracy</th>
+                <th>MAE</th>
+                <th>Performance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="winner">
+                <td><span class="rank-badge r1">1</span></td>
+                <td><span class="mdl-name">Linear Regression</span></td>
+                <td style="color:var(--text-muted)">Regressor</td>
+                <td class="amber">0.770</td>
+                <td>0.45 pts</td>
+                <td>
+                  <div class="mbar">
+                    <div class="mbar-track">
+                      <div class="mbar-fill" style="width:77%;background:var(--amber)"></div>
+                    </div>
+                    <span style="font-family:var(--font-mono);font-size:9px" class="amber">77%</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge r2">2</span></td>
+                <td><span class="mdl-name">Random Forest Classifier</span></td>
+                <td style="color:var(--text-muted)">Classifier</td>
+                <td class="cyan">90.77%</td>
+                <td>AUC 0.969</td>
+                <td>
+                  <div class="mbar">
+                    <div class="mbar-track">
+                      <div class="mbar-fill" style="width:91%;background:var(--cyan)"></div>
+                    </div>
+                    <span style="font-family:var(--font-mono);font-size:9px" class="cyan">91%</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge r3">3</span></td>
+                <td><span class="mdl-name">RF Regressor</span></td>
+                <td style="color:var(--text-muted)">Regressor</td>
+                <td>0.668</td>
+                <td>1.94 pts</td>
+                <td>
+                  <div class="mbar">
+                    <div class="mbar-track">
+                      <div class="mbar-fill" style="width:67%;background:var(--text-muted)"></div>
+                    </div>
+                    <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">67%</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge r4">4</span></td>
+                <td><span class="mdl-name">Simplified Equation</span></td>
+                <td style="color:var(--text-muted)">Formula</td>
+                <td>0.642</td>
+                <td>2.11 pts</td>
+                <td>
+                  <div class="mbar">
+                    <div class="mbar-track">
+                      <div class="mbar-fill" style="width:64%;background:var(--text-muted)"></div>
+                    </div>
+                    <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">64%</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Equation breakdown -->
+        <div class="card card-pad gap18">
+          <div class="card-label">Simplified Forecasting Formula · R² = 64.2%</div>
+          <div class="report-title" style="font-size:19px;margin-bottom:0">The Quick Estimate Equation</div>
+          <div class="eq-box">
+            Score = <span class="amber">40.73</span>
+            + <span class="cyan">0.2891</span>×H
+            + <span class="cyan">0.1988</span>×A
+            + <span class="cyan">0.0483</span>×P
+            + <span class="emrld">0.5102</span>×T
+            + <span class="cyan">0.1507</span>×Y
+          </div>
+          <div class="eq-vars">
+            <div>
+              <div class="eq-var-sym cyan">H</div>
+              <div class="eq-var-lbl">Hours<br>Studied</div>
+            </div>
+            <div>
+              <div class="eq-var-sym cyan">A</div>
+              <div class="eq-var-lbl">Attendance<br>%</div>
+            </div>
+            <div>
+              <div class="eq-var-sym cyan">P</div>
+              <div class="eq-var-lbl">Physical<br>Activity</div>
+            </div>
+            <div>
+              <div class="eq-var-sym emrld">T</div>
+              <div class="eq-var-lbl">Tutoring<br>Sessions</div>
+            </div>
+            <div>
+              <div class="eq-var-sym cyan">Y</div>
+              <div class="eq-var-lbl">Previous<br>Score</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key insights -->
+        <div class="insights-row">
+          <div class="card insight-card">
+            <div class="insight-val">0.581</div>
+            <div class="insight-lbl">Attendance Correlation</div>
+            <div class="insight-desc">Strongest single predictor of performance. Each percentage point in attendance
+              contributes ~0.2 marks to the final score.</div>
+          </div>
+          <div class="card insight-card">
+            <div class="insight-val">78%</div>
+            <div class="insight-lbl">Dataset Pass Rate</div>
+            <div class="insight-desc">5,155 of 6,607 students pass at ≥65. The high-risk group (22%) is the most
+              impactful intervention target.</div>
+          </div>
+          <div class="card insight-card">
+            <div class="insight-val">0.969</div>
+            <div class="insight-lbl">Classifier AUC</div>
+            <div class="insight-desc">Random Forest achieves near-perfect discrimination between pass and fail outcomes
+              — ideal for early-warning systems.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── EXPLORER PANE ──── -->
+      <div class="pane" id="pane-explorer">
+        <div class="pane-hd">
+          <div class="pane-title">Student Data Explorer</div>
+          <div class="pane-sub">6,607 records · 20 features · Distributions across behavioral and demographic dimensions
+          </div>
+        </div>
+
+        <div class="explorer-grid gap18">
+          <!-- Correlation chart -->
+          <div class="card card-pad">
+            <div class="chart-title">Feature Correlations with Score</div>
+            <div class="chart-sub">Pearson r · Numeric features only · p-values reported</div>
+            <div class="corr-list">
+              <div class="corr-row">
+                <div class="corr-name">Attendance</div>
+                <div class="corr-track">
+                  <div class="corr-fill" style="width:100%"></div>
+                </div>
+                <div class="corr-val">0.581</div>
+              </div>
+              <div class="corr-row">
+                <div class="corr-name">Hours Studied</div>
+                <div class="corr-track">
+                  <div class="corr-fill" style="width:77%"></div>
+                </div>
+                <div class="corr-val">0.446</div>
+              </div>
+              <div class="corr-row">
+                <div class="corr-name">Tutoring Sessions</div>
+                <div class="corr-track">
+                  <div class="corr-fill" style="width:51%"></div>
+                </div>
+                <div class="corr-val">0.296</div>
+              </div>
+              <div class="corr-row">
+                <div class="corr-name">Previous Scores</div>
+                <div class="corr-track">
+                  <div class="corr-fill" style="width:44%"></div>
+                </div>
+                <div class="corr-val">0.256</div>
+              </div>
+              <div class="corr-row">
+                <div class="corr-name">Physical Activity</div>
+                <div class="corr-track">
+                  <div class="corr-fill" style="width:16%"></div>
+                </div>
+                <div class="corr-val">0.093</div>
+              </div>
+              <div class="corr-row corr-insig">
+                <div class="corr-name">Sleep Hours</div>
+                <div class="corr-track">
+                  <div class="corr-fill" style="width:12%"></div>
+                </div>
+                <div class="corr-val">0.067 ns</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk distribution bar chart -->
+          <div class="card card-pad">
+            <div class="chart-title">Risk Segment Distribution</div>
+            <div class="chart-sub">Academic risk by predicted score threshold</div>
+            <div class="bar-chart">
+              <div class="bar-item">
+                <div class="bar-num coral">22.0%</div>
+                <div class="bar-col" style="height:44px;background:var(--coral);opacity:0.8"></div>
+                <div class="bar-lbl">High Risk<br>(&lt; 65)</div>
+              </div>
+              <div class="bar-item">
+                <div class="bar-num" style="color:var(--amber-risk)">53.4%</div>
+                <div class="bar-col" style="height:80px;background:var(--amber-risk);opacity:0.8"></div>
+                <div class="bar-lbl">Medium Risk<br>(65–69)</div>
+              </div>
+              <div class="bar-item">
+                <div class="bar-num emrld">24.6%</div>
+                <div class="bar-col" style="height:50px;background:var(--emerald);opacity:0.8"></div>
+                <div class="bar-lbl">Low Risk<br>(≥ 70)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avg score by motivation -->
+        <div class="card card-pad gap18">
+          <div class="chart-title">Average Score by Motivation Level</div>
+          <div class="chart-sub">Students grouped by self-reported motivation · n = 6,607</div>
+          <div class="avg-row">
+            <div class="avg-card">
+              <div class="avg-val emrld">69.1</div>
+              <div class="avg-lbl">High Motivation</div>
+            </div>
+            <div class="avg-card">
+              <div class="avg-val amber">67.2</div>
+              <div class="avg-lbl">Medium Motivation</div>
+            </div>
+            <div class="avg-card">
+              <div class="avg-val coral">65.4</div>
+              <div class="avg-lbl">Low Motivation</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-note">
+          <div class="stat-note-icon">🔬</div>
+          <div>
+            <div class="stat-note-label">Statistical Significance</div>
+            <div class="stat-note-body">
+              <strong style="color:var(--text-primary)">Significant (p &lt; 0.0001):</strong>
+              Attendance, Hours Studied, Tutoring Sessions, Previous Scores.<br>
+              <strong style="color:var(--text-muted)">Not significant after controls:</strong>
+              Sleep Hours (p = 0.527), Gender (p = 0.659), School Type (p = 0.784).
+              These factors show no independent effect on exam scores once behavioral variables are held constant.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── AURA PANE ──── -->
+      <div class="pane" id="pane-aura">
+        <div class="aura-layout">
+
+          <!-- Chat window -->
+          <div class="card chat-wrap">
+            <div class="chat-header">
+              <div class="aura-avatar">✦</div>
+              <div>
+                <div class="aura-info-name">Aura</div>
+                <div class="aura-info-sub">Academic Success Coach · Gemini-powered · Context-aware</div>
+              </div>
+              <div style="margin-left:auto">
+                <div class="status-pill">
+                  <div class="status-dot"></div>Online
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-msgs" id="chat-msgs">
+              <div class="msg aura">
+                <div class="msg-av aura-av">✦</div>
+                <div class="bubble">
+                  Hello! I'm <strong>Aura</strong>, your AI academic coach. I can help you understand what's driving
+                  your predicted score, build a targeted study plan, and identify your highest-leverage improvement
+                  actions.<br><br>
+                  To get started — tell me about your current study routine. How many hours per week do you study, and
+                  how would you rate your consistency?
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-footer">
+              <textarea class="chat-input" id="chat-in"
+                placeholder="Ask about study habits, score improvement, exam strategies, or get a personalized plan…"
+                rows="2" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}">
+            </textarea>
+              <button class="chat-send" id="send-btn" onclick="sendMsg()">Send →</button>
+            </div>
+          </div>
+
+          <!-- Aura sidebar -->
+          <div class="aura-side">
+            <div class="card card-pad">
+              <div class="aside-title">Suggested Questions</div>
+              <button class="prompt-chip" onclick="fillPrompt(this)">How can I raise my score by 10 points?</button>
+              <button class="prompt-chip" onclick="fillPrompt(this)">I struggle to stay consistent. What should I
+                do?</button>
+              <button class="prompt-chip" onclick="fillPrompt(this)">Build me a weekly study schedule</button>
+              <button class="prompt-chip" onclick="fillPrompt(this)">Which factor has the biggest impact on my
+                score?</button>
+              <button class="prompt-chip" onclick="fillPrompt(this)">Does sleep really affect exam performance?</button>
+            </div>
+
+            <div class="card card-pad">
+              <div class="aside-title">Your Current Profile</div>
+              <div class="profile-mono">
+                Study hours: <span class="pv" id="ps-hrs">20 hrs/wk</span><br>
+                Attendance: <span class="pv" id="ps-att">80%</span><br>
+                Tutoring: <span class="pv" id="ps-tut">2 / mo</span><br>
+                Motivation: <span class="pv" id="ps-mot">Medium</span><br>
+                Risk level: <span class="pv" id="ps-risk">Medium</span><br>
+                Predicted score: <span class="pv" id="ps-score">—</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ════════════════ API STATUS BANNER ════════════════ -->
+  <div class="api-banner checking" id="api-banner">
+    <div class="api-banner-dot"></div>
+    <span id="api-banner-txt">Connecting to API…</span>
+  </div>
+
+  <!-- ════════════════ JS ════════════════ -->
+  <script>
+    /* ══════════════════════════════════════════════════════════════
+       StudPerf Dashboard — API-connected JS
+       ══════════════════════════════════════════════════════════════ */
+
+    /* ── config ── */
+    const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === "")
+      ? "http://localhost:8000"
+      : "https://web-production-3d5ebd.up.railway.app";
+
+    /* ── helpers ── */
+    const $ = id => document.getElementById(id);
+    const v = (id, val) => $(id).textContent = val;
+
+    /* ── state ── */
+    let currentScore = 67;       // last predicted score (shared with chat)
+    let apiOnline = false;    // whether /health responded ok
+    let updateTimer = null;     // debounce handle
+    let chatHistory = [];       // [{role, content}] for Gemini context
+
+    /* ══════════════════════════════════════════════════════════════
+       API STATUS BANNER
+       ══════════════════════════════════════════════════════════════ */
+    function setBanner(state, text) {
+      const b = $('api-banner');
+      b.className = `api-banner ${state}`;
+      $('api-banner-txt').textContent = text;
+    }
+
+    async function checkApi() {
+      try {
+        const r = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(3000) });
+        if (r.ok) {
+          apiOnline = true;
+          setBanner('ok', 'API · Models Live');
+        } else {
+          throw new Error('non-ok');
+        }
+      } catch {
+        apiOnline = false;
+        setBanner('offline', 'API offline — using local formula');
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       PROFILE READER — collects all sidebar values
+       ══════════════════════════════════════════════════════════════ */
+    function getProfile() {
+      return {
+        hours: +$('sl-hours').value,
+        attendance: +$('sl-att').value,
+        prev_scores: +$('sl-prev').value,
+        tutoring: +$('sl-tutor').value,
+        physical: +$('sl-phys').value,
+        sleep: +$('sl-sleep').value,
+        parental: $('sel-par').value,
+        motivation: $('sel-motiv').value,
+        resources: $('sel-res').value,
+        family_income: $('sel-inc').value,
+        teacher_quality: $('sel-tq').value,
+        peer_influence: $('sel-peer').value,
+        internet: $('sel-net').value,
+        extracurricular: $('sel-extra').value,
+        disability: $('sel-dis').value,
+        parent_edu: $('sel-pedu').value,
+        distance: $('sel-dist').value,
+        school_type: $('sel-stype').value,
+        gender: $('sel-gender').value,
+      };
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       LOCAL FALLBACK — simplified equation (R² = 64.2%)
+       Used when API is offline
+       ══════════════════════════════════════════════════════════════ */
+    function localPredict(p) {
+      const s = 40.73 + 0.2891 * p.hours + 0.1988 * p.attendance
+        + 0.0483 * p.physical + 0.5102 * p.tutoring + 0.1507 * p.prev_scores;
+      return {
+        score: Math.min(100, Math.max(40, Math.round(s * 10) / 10)),
+        pass_prob: null, risk: null
+      };
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       GAUGE
+       ══════════════════════════════════════════════════════════════ */
+    const ARC_LEN = Math.PI * 90; // semicircle r=90 ≈ 282.7
+
+    function setGauge(score) {
+      const pct = Math.max(0, Math.min(1, (score - 40) / 60));
+      const dash = pct * ARC_LEN;
+      const arc = $('g-arc');
+      arc.setAttribute('stroke-dasharray', `${dash.toFixed(1)} ${ARC_LEN.toFixed(1)}`);
+      arc.setAttribute('stroke', pct >= 0.5 ? 'var(--emerald)' : pct >= 0.17 ? 'var(--amber)' : 'var(--coral)');
+      $('g-score').textContent = Math.round(score);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       RISK HELPERS
+       ══════════════════════════════════════════════════════════════ */
+    function riskFromScore(score) {
+      if (score >= 70) return 'low';
+      if (score >= 65) return 'med';
+      return 'high';
+    }
+
+    function localPassPct(score) {
+      if (score >= 85) return 97; if (score >= 80) return 93;
+      if (score >= 75) return 86; if (score >= 70) return 78;
+      if (score >= 65) return 64; if (score >= 60) return 42;
+      return 22;
+    }
+
+    function pctile(score) {
+      if (score >= 90) return '95th'; if (score >= 82) return '82nd';
+      if (score >= 75) return '68th'; if (score >= 70) return '54th';
+      if (score >= 65) return '38th'; return '20th';
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       RENDER HELPERS
+       ══════════════════════════════════════════════════════════════ */
+    function renderItems(id, items, dotCls) {
+      $(id).innerHTML = items.length
+        ? items.map(t => `<div class="ritem"><div class="ritem-dot ${dotCls}"></div><span>${t}</span></div>`).join('')
+        : `<div class="ritem"><div class="ritem-dot ${dotCls}"></div><span>All good here.</span></div>`;
+    }
+
+    function buildLocalReport(score, p) {
+      const { hours: H, attendance: A, tutoring: T, motivation: M } = p;
+      const S = [], G = [], Act = [];
+
+      if (A >= 85) S.push('Excellent attendance (≥85%) — top-tier classroom engagement');
+      else if (A >= 75) S.push('Good attendance above 75% — solid classroom presence');
+      else G.push('Attendance below 75% — the single highest-impact area to fix');
+
+      if (H >= 25) S.push('High study volume (25+ hrs/wk) shows strong academic commitment');
+      else if (H >= 15) S.push('Adequate weekly study hours providing a reasonable base');
+      else G.push('Study hours below the 20 hrs/week baseline for passing students');
+
+      if (T >= 4) S.push('Frequent tutoring (≥4/mo) actively closing knowledge gaps');
+      else if (T >= 2) S.push('Regular tutoring provides structured guided learning support');
+      else G.push('Low tutoring frequency — guided support would accelerate progress');
+
+      if (M === 'High') S.push('High motivation compounds the effect of every other good habit');
+      else if (M === 'Low') G.push('Low motivation reduces study follow-through — address mindset first');
+
+      if (H < 20) Act.push(`Raise weekly study to ${Math.min(44, H + 5)} hours with a fixed daily schedule`);
+      if (A < 90) Act.push(`Improve attendance to ${Math.min(100, A + 5)}% — class presence beats solo study`);
+      Act.push('Add 1–2 targeted tutoring sessions per month on your weakest subjects');
+      Act.push('Review past exam papers weekly to close knowledge gaps before they compound');
+
+      return { S: S.slice(0, 3), G: G.slice(0, 3), Act: Act.slice(0, 4) };
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       APPLY RESULTS TO DOM
+       ══════════════════════════════════════════════════════════════ */
+    function applyResults(score, passProbPct, riskCls, p) {
+      currentScore = score;
+
+      /* Gauge */
+      setGauge(score);
+      const pp = passProbPct !== null ? passProbPct.toFixed(1) + '%' : localPassPct(score) + '%';
+      $('g-pass').textContent = pp;
+      $('g-pct').textContent = pctile(score);
+      $('g-status').textContent = score >= 65 ? 'Passing' : 'At Risk';
+      $('g-status').style.color = score >= 65 ? 'var(--emerald)' : 'var(--coral)';
+
+      /* Score card glow by risk */
+      const glows = {
+        low: '0 0 40px rgba(16,217,136,0.09)',
+        med: '0 0 40px rgba(245,158,11,0.09)',
+        high: '0 0 40px rgba(243,101,96,0.09)',
+      };
+      $('score-card').style.boxShadow =
+        `0 2px 20px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset, ${glows[riskCls]}`;
+
+      /* Risk badge */
+      const labels = { low: 'Low Risk', med: 'Medium Risk', high: 'High Risk' };
+      $('risk-badge').className = `risk-badge ${riskCls}`;
+      $('risk-text').textContent = labels[riskCls];
+
+      const descs = {
+        low: 'Score at or above 70. The student is performing strongly — focus on maintaining habits and pushing for excellence.',
+        med: 'Score in the 65–69 range. Passing, but meaningful room to improve — especially study consistency and attendance.',
+        high: 'Score below 65. Immediate focused intervention recommended: increase study hours, attendance, and tutoring.',
+      };
+      $('risk-desc').textContent = descs[riskCls];
+
+      /* Factor bars */
+      const setBar = (fillId, numId, pct, label) => {
+        $(fillId).style.width = Math.min(100, Math.max(1, pct)) + '%';
+        $(numId).textContent = label;
+      };
+      setBar('fb-att', 'fn-att', p.attendance, p.attendance + '%');
+      setBar('fb-hrs', 'fn-hrs', (p.hours / 44) * 100, p.hours + 'h');
+      setBar('fb-tut', 'fn-tut', (p.tutoring / 8) * 100, p.tutoring + '/mo');
+      setBar('fb-prv', 'fn-prv', ((p.prev_scores - 40) / 60) * 100, p.prev_scores);
+
+      /* Factor chips */
+      $('fc-hrs').textContent = p.hours + ' h/wk';
+      $('fc-att').textContent = p.attendance + '%';
+      $('fc-tut').textContent = p.tutoring + ' ses.';
+      $('fc-mot').textContent = p.motivation;
+      $('fc-slp').textContent = p.sleep + ' hrs';
+      $('fc-phy').textContent = p.physical + ' h/wk';
+
+      /* Diagnostic report */
+      const rep = buildLocalReport(score, p);
+      renderItems('rep-strengths', rep.S, 'dot-g');
+      renderItems('rep-growth', rep.G, 'dot-r');
+      renderItems('rep-actions', rep.Act, 'dot-a');
+
+      /* Aura profile sidebar */
+      $('ps-hrs').textContent = p.hours + ' hrs/wk';
+      $('ps-att').textContent = p.attendance + '%';
+      $('ps-tut').textContent = p.tutoring + ' / mo';
+      $('ps-mot').textContent = p.motivation;
+      $('ps-risk').textContent = labels[riskCls].split(' ')[0];
+      $('ps-score').textContent = Math.round(score) + ' / 100';
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       MAIN UPDATE — debounced, API-first with local fallback
+       ══════════════════════════════════════════════════════════════ */
+    function update() {
+      clearTimeout(updateTimer);
+      updateTimer = setTimeout(_doUpdate, 280);  // 280 ms debounce
+    }
+
+    async function _doUpdate() {
+      const p = getProfile();
+
+      if (apiOnline) {
+        /* Show loading shimmer on gauge */
+        $('score-card').classList.add('score-loading');
+        try {
+          const res = await fetch(`${API_BASE}/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(p),
+            signal: AbortSignal.timeout(8000),
+          });
+          if (!res.ok) throw new Error('predict failed');
+          const data = await res.json();
+          $('score-card').classList.remove('score-loading');
+          applyResults(data.score, data.pass_prob, data.risk, p);
+          return;
+        } catch {
+          /* API call failed mid-session — fall through to local */
+          apiOnline = false;
+          setBanner('offline', 'API offline — using local formula');
+          $('score-card').classList.remove('score-loading');
+          /* Retry health check after 10 s so the banner recovers automatically */
+          setTimeout(checkApi, 3000);
+        }
+      }
+
+      /* Local fallback */
+      const { score } = localPredict(p);
+      applyResults(score, null, riskFromScore(score), p);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       THEME TOGGLE
+       ══════════════════════════════════════════════════════════════ */
+    function toggleTheme() {
+      const light = document.body.classList.toggle('light');
+      document.getElementById('theme-toggle').textContent = light ? '☀️' : '🌙';
+      localStorage.setItem('studperf-theme', light ? 'light' : 'dark');
+    }
+
+    (function applyStoredTheme() {
+      if (localStorage.getItem('studperf-theme') === 'light') {
+        document.body.classList.add('light');
+        document.getElementById('theme-toggle').textContent = '☀️';
+      }
+    })();
+
+    /* ══════════════════════════════════════════════════════════════
+       TAB SWITCHING
+       ══════════════════════════════════════════════════════════════ */
+    function switchPane(id, btn) {
+      document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      $('pane-' + id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       CHAT — SSE streaming from Gemini via /chat
+       ══════════════════════════════════════════════════════════════ */
+
+    /* Minimal markdown → HTML (bold, italic, headers, bullets, code) */
+    function mdToHtml(raw) {
+      return raw
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/^#### (.+)$/gm, '<strong>$1</strong>')
+        .replace(/^### (.+)$/gm, '<strong>$1</strong>')
+        .replace(/^## (.+)$/gm, '<strong>$1</strong>')
+        .replace(/^# (.+)$/gm, '<strong>$1</strong>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`(.+?)`/g, '<code style="font-family:var(--font-mono);font-size:0.9em;background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px">$1</code>')
+        .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, s => `<ul style="margin:6px 0 6px 14px;padding:0">${s}</ul>`)
+        .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
+        .replace(/\n{2,}/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function addMsg(html, who, raw = '') {
+      const c = $('chat-msgs');
+      const m = document.createElement('div');
+      m.className = `msg ${who}`;
+
+      const av = document.createElement('div');
+      av.className = `msg-av ${who === 'aura' ? 'aura-av' : 'user-av'}`;
+      av.textContent = who === 'aura' ? '✦' : 'U';
+
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      b.innerHTML = html;
+
+      m.appendChild(av);
+      m.appendChild(b);
+      c.appendChild(m);
+      c.scrollTop = c.scrollHeight;
+      return b;   // return bubble element for streaming updates
+    }
+
+    function showTyping() {
+      const c = $('chat-msgs');
+      const t = document.createElement('div');
+      t.className = 'msg aura'; t.id = 'typing-row';
+
+      const av = document.createElement('div');
+      av.className = 'msg-av aura-av'; av.textContent = '✦';
+
+      const d = document.createElement('div');
+      d.className = 'typing-dots';
+      d.innerHTML = '<div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>';
+
+      t.appendChild(av); t.appendChild(d);
+      c.appendChild(t);
+      c.scrollTop = c.scrollHeight;
+    }
+
+    function removeTyping() {
+      const t = $('typing-row');
+      if (t) t.remove();
+    }
+
+    async function sendMsg() {
+      const inp = $('chat-in');
+      const txt = inp.value.trim();
+      if (!txt) return;
+
+      /* Add user bubble */
+      addMsg(txt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'), 'user');
+      inp.value = '';
+      $('send-btn').disabled = true;
+
+      /* Record in history */
+      chatHistory.push({ role: 'user', content: txt });
+
+      /* ── Route: API online → stream from Gemini ── */
+      if (apiOnline) {
+        showTyping();
+        try {
+          const res = await fetch(`${API_BASE}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: txt,
+              profile: getProfile(),
+              history: chatHistory.slice(-12),
+              predicted_score: currentScore,
+            }),
+            signal: AbortSignal.timeout(60000),
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+            removeTyping();
+            const b = addMsg(`<em style="color:var(--coral)">${err.detail || 'API error'}</em>`, 'aura');
+            $('send-btn').disabled = false;
+            return;
+          }
+
+          removeTyping();
+
+          /* Create Aura bubble and stream text into it */
+          const bubble = addMsg('', 'aura');
+          bubble.classList.add('streaming');
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          let rawText = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            /* SSE lines are separated by \n\n */
+            const parts = buffer.split('\n\n');
+            buffer = parts.pop() ?? '';
+
+            for (const part of parts) {
+              const line = part.trim();
+              if (!line.startsWith('data: ')) continue;
+              const payload = line.slice(6);
+              if (payload === '[DONE]') break;
+              try {
+                const { text, error } = JSON.parse(payload);
+                if (error) { rawText += `\n\nError: ${error}`; break; }
+                if (text) { rawText += text; }
+              } catch { /* malformed chunk — ignore */ }
+            }
+
+            bubble.innerHTML = mdToHtml(rawText);
+            $('chat-msgs').scrollTop = $('chat-msgs').scrollHeight;
+          }
+
+          bubble.classList.remove('streaming');
+          chatHistory.push({ role: 'assistant', content: rawText });
+
+        } catch (err) {
+          removeTyping();
+          apiOnline = false;
+          setBanner('offline', 'API offline — using local formula');
+          /* Fall back to static coaching response instead of showing an error */
+          const CHAT_FALLBACK = [
+            "Attendance (r = 0.58) is the single strongest predictor of your exam score. Raising it from 80% to 90% adds roughly 2 points before anything else changes.",
+            "The boundary between Medium and Low risk is 70 marks. Reaching it reliably requires 25+ study hours per week AND 85%+ attendance — the combination matters more than either alone.",
+            "Each additional tutoring session per month adds ~0.51 marks to the predicted score — the largest coefficient in the model. Going from 2 to 4 sessions per month is worth about 1 point.",
+            "Sleep hours show no statistically significant effect on scores (p = 0.527) after controlling for study hours. Prioritise study consistency over extra sleep beyond 7–8 hours.",
+            "High-motivation students average 3.7 points higher than low-motivation peers. Building an accountability structure — a study partner, daily check-ins — can substitute for intrinsic drive.",
+          ];
+          const reply = CHAT_FALLBACK[chatHistory.filter(m => m.role === 'assistant').length % CHAT_FALLBACK.length];
+          addMsg(reply, 'aura');
+          chatHistory.push({ role: 'assistant', content: reply });
+          $('send-btn').disabled = false;
+          inp.focus();
+          return;
+        }
+
+      } else {
+        /* ── Fallback: static coaching responses when API is offline ── */
+        showTyping();
+        const FALLBACK = [
+          "Attendance (r = 0.58) is the single strongest predictor of your exam score. Raising it from 80% to 90% adds roughly 2 points before anything else changes.",
+          "The boundary between Medium and Low risk is 70 marks. Reaching it reliably requires 25+ study hours per week AND 85%+ attendance — the combination matters more than either alone.",
+          "Each additional tutoring session per month adds ~0.51 marks to the predicted score — the largest coefficient in the model. Going from 2 to 4 sessions per month is worth about 1 point.",
+          "Sleep hours show no statistically significant effect on scores (p = 0.527) after controlling for study hours. Prioritise study consistency over extra sleep beyond 7–8 hours.",
+          "High-motivation students average 3.7 points higher than low-motivation peers. Building an accountability structure — a study partner, daily check-ins — can substitute for intrinsic drive.",
+        ];
+        setTimeout(() => {
+          removeTyping();
+          const reply = FALLBACK[chatHistory.filter(m => m.role === 'assistant').length % FALLBACK.length];
+          addMsg(reply, 'aura');
+          chatHistory.push({ role: 'assistant', content: reply });
+          $('send-btn').disabled = false;
+          inp.focus();
+        }, 900 + Math.random() * 600);
+        return;
+      }
+
+      $('send-btn').disabled = false;
+      inp.focus();
+    }
+
+    function fillPrompt(el) {
+      $('chat-in').value = el.textContent.trim();
+      $('chat-in').focus();
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       INIT
+       ══════════════════════════════════════════════════════════════ */
+    (async () => {
+      await checkApi();
+      /* Run first prediction immediately (no debounce on load) */
+      const p = getProfile();
+      if (apiOnline) {
+        try {
+          const res = await fetch(`${API_BASE}/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(p),
+            signal: AbortSignal.timeout(8000),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            applyResults(data.score, data.pass_prob, data.risk, p);
+            return;
+          }
+        } catch { /* fall through */ }
+      }
+      const { score } = localPredict(p);
+      applyResults(score, null, riskFromScore(score), p);
+    })();
+  </script>
+</body>
+
+</html>
