@@ -125,7 +125,7 @@ StudPerf2/
 ### Prerequisites
 
 - Python 3.10+
-- A valid [Google Gemini API key](https://aistudio.google.com/app/apikey) (for the Aura chatbot)
+- A valid Gemini API Key
 
 ### 1. Clone the repository
 
