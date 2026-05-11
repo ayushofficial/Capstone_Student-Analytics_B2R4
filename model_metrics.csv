@@ -1,0 +1,49 @@
+{
+  "dataset_rows": 6607,
+  "dataset_columns": 25,
+  "pass_threshold": 65,
+  "regression_metrics": {
+    "model_name": "Random Forest Regressor (Advanced)",
+    "mae": "1.0841",
+    "rmse": "2.1657",
+    "r2": "0.6682"
+  },
+  "linear_regression_metrics": {
+    "model_name": "Full Linear Regression (Baseline)",
+    "mae": "0.4524",
+    "rmse": "1.8044",
+    "r2": "0.7696"
+  },
+  "simplified_equation_metrics": {
+    "model_name": "Simplified Equation-Based Linear Regression",
+    "mae": "1.2642",
+    "rmse": "2.2488",
+    "r2": "0.6422",
+    "formula": "Exam_Score = 40.7285 + 0.2891*Hours_Studied + 0.1988*Attendance + 0.0483*Previous_Scores + 0.5102*Tutoring_Sessions + 0.1507*Physical_Activity"
+  },
+  "classification_metrics": {
+    "model_name": "Random Forest Classifier",
+    "accuracy": "0.9077",
+    "precision": "0.9068",
+    "recall": "0.9847",
+    "f1_score": "0.9441",
+    "roc_auc": "0.9686"
+  },
+  "top_factors": [
+    {
+      "feature": "Attendance",
+      "direction": "positive",
+      "importance": "extremely high"
+    },
+    {
+      "feature": "Hours_Studied",
+      "direction": "positive",
+      "importance": "extremely high"
+    },
+    {
+      "feature": "Previous_Scores",
+      "direction": "positive",
+      "importance": "moderate"
+    }
+  ]
+}
