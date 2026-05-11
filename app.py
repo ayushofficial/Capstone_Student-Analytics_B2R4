@@ -120,7 +120,7 @@ st.markdown("---")
 # =========================================================================
 st.sidebar.markdown("<h2 style='color:#0f4c5c; text-align:center;'>💻 Student Profile</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("Configure the student's demographic details and academic behavioral habits below:")
-
+# Readme refer
 st.sidebar.markdown("### 📚 Academic Habits (Controllable)")
 hours = st.sidebar.slider("Weekly Study Hours", min_value=1, max_value=40, value=18, help="Number of hours the student revises independently each week.")
 attendance = st.sidebar.slider("School Attendance Rate (%)", min_value=50, max_value=100, value=88, help="Percentage of school classes attended in the semester.")
